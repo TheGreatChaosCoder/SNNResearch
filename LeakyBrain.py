@@ -18,11 +18,11 @@ import itertools
 import csv
     
 class Brain:
-    def __init__(self, data_train, data_test, batch_size, beta):
+    def __init__(self, data_path, batch_size, beta):
         dtype = torch.float
         
         self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-        self.data = (data_train, data_test)
+        self.data = self.download_mnist_data_set(data_path)
 
         spike_grad = surrogate.fast_sigmoid(slope=25)
         self.net = nn.Sequential(nn.Conv2d(1, 128, 7),
@@ -45,6 +45,24 @@ class Brain:
 
         #Init loss function
         self.loss_fn  = SF.ce_rate_loss()
+
+    def download_mnist_data_set(self, data_path, print = True):
+        print("Downloading MNIST Data Set...") if print else None
+
+        #Resize to 48x48 pixel image, grayscale, convert to a normalized tensor
+        transform = transforms.Compose([
+            transforms.Resize((32, 32)),
+            transforms.Grayscale(),
+            transforms.ToTensor(),
+            transforms.Normalize((0,), (1,))])
+
+
+        mnist_train = datasets.MNIST(data_path, train=True, download=True, transform=transform)
+        mnist_test = datasets.MNIST(data_path, train=False, download=True, transform=transform)
+
+        print("Finished MNIST Data Set...") if print else None
+
+        return mnist_train, mnist_test
 
     def forward_pass(self, num_steps, data = None):
         if data is None:
