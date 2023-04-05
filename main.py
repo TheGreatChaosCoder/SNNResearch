@@ -1,4 +1,5 @@
 import LeakyBrain as brain
+import FunctionalBrain as func
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -27,4 +28,13 @@ def main():
 
     print("Ending Program...")
 
-main()
+def main2():
+    csv_path = './data/function/train-labels.csv'
+    dataset = func.FunctionDataset(csv_path, './data/function')
+
+    brain = func.FunctionalBrain(dataset, .5, 200)
+    print("Training SNN...")
+    brain.training_loop(100, .9, .999, num_iters=10000)
+    print("Ending Program...")
+
+main2()

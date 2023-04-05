@@ -46,8 +46,8 @@ class Brain:
         #Init loss function
         self.loss_fn  = SF.ce_rate_loss()
 
-    def download_mnist_data_set(self, data_path, print = True):
-        print("Downloading MNIST Data Set...") if print else None
+    def download_mnist_data_set(self, data_path, printf = True):
+        print("Downloading MNIST Data Set...") if printf else None
 
         #Resize to 48x48 pixel image, grayscale, convert to a normalized tensor
         transform = transforms.Compose([
@@ -56,26 +56,32 @@ class Brain:
             transforms.ToTensor(),
             transforms.Normalize((0,), (1,))])
 
-
         mnist_train = datasets.MNIST(data_path, train=True, download=True, transform=transform)
         mnist_test = datasets.MNIST(data_path, train=False, download=True, transform=transform)
 
-        print("Finished MNIST Data Set...") if print else None
+        print("Finished MNIST Data Set...") if printf else None
 
         return mnist_train, mnist_test
 
     def forward_pass(self, num_steps, data = None):
         if data is None:
+            #print(self.train)
             data, targets = next(iter(self.train))
             data = data.to(self.device)
             targets = targets.to(self.device)
+
+            #print(f"Data:{data},\nTargets:{targets}")
+        print(data.size())
 
         mem_rec = []
         spk_rec = []
         utils.reset(self.net)
 
         for step in range(num_steps):
+            #print(f"Data: {self.net(data)}")
             spk_out, mem_out = self.net(data)
+
+            #print(f"Spk:{spk_out}, \nMem:{mem_out}")
             #print(f"Finished Forward Pass") if step+1==num_steps else None
             spk_rec.append(spk_out)
             mem_rec.append(mem_out)
@@ -113,12 +119,17 @@ class Brain:
 
             # Training loop
             for i, (data, targets) in enumerate(iter(self.train)):
+                print(targets)
+
                 data = data.to(self.device)
                 targets = targets.to(self.device)
 
                 # forward pass
                 self.net.train()
                 spk_rec, _ = self.forward_pass(num_steps, data)
+
+                print(spk_rec.size())
+                print(targets.size())
 
                 # initialize the loss & sum over time
                 loss_val = self.loss_fn(spk_rec, targets)
