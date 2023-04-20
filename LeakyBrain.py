@@ -24,7 +24,7 @@ class Brain:
         self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         self.data = self.download_mnist_data_set(data_path)
 
-        spike_grad = surrogate.fast_sigmoid(slope=25)
+        spike_grad = surrogate.fast_sigmoid(slope=50)
         self.net = nn.Sequential(nn.Conv2d(1, 128, 7),
                     nn.MaxPool2d(2),
                     snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True),
@@ -119,7 +119,7 @@ class Brain:
 
             # Training loop
             for i, (data, targets) in enumerate(iter(self.train)):
-                print(targets)
+                print(data.size())
 
                 data = data.to(self.device)
                 targets = targets.to(self.device)

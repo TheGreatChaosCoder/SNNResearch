@@ -30,11 +30,11 @@ def main():
 
 def main2():
     csv_path = './data/function/train-labels.csv'
-    dataset = func.FunctionDataset(csv_path, './data/function')
+    dataset = func.FunctionDataset(csv_path, './data/function', increment=0.25, normalize = True, num_steps = 100)
 
-    brain = func.FunctionalBrain(dataset, .5, 200)
+    brain = func.FunctionalBrain(dataset, .65, .6, 100)
     print("Training SNN...")
-    brain.training_loop(100, .9, .999, num_iters=10000)
+    brain.training_loop(dataset.get_num_steps() , .9, .999, num_epochs = 10, num_iters=10000, test_index=1000)
     print("Ending Program...")
 
 main2()
